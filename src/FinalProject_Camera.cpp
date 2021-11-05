@@ -152,7 +152,8 @@ int main(int argc, const char *argv[])
 
         detectKeypoints(keypoints, imgGray, detectorType, false);
 
-        // optional : limit number of keypoints (helpful for debugging and learning)
+        // DO NOT switch on in the running version
+        // limit number of keypoints (helpful for visualization and debugging purposes)
         bool bLimitKpts = false;
         if (bLimitKpts)
         {
