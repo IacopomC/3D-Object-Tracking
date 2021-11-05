@@ -14,12 +14,29 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
 
     if (matcherType.compare("MAT_BF") == 0)
     {
-        int normType = cv::NORM_HAMMING;
+        int normType;
+        // select norm type based on descriptor type
+        if (descriptorType.compare("DES_BINARY") == 0)
+        {
+            normType = cv::NORM_HAMMING;
+        }
+        else if (descriptorType.compare("DES_HOG") == 0)
+        {
+            normType = cv::NORM_L2;
+        }
+        
         matcher = cv::BFMatcher::create(normType, crossCheck);
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
-        // ...
+        if (descriptorType.compare("DES_BINARY") == 0)
+        {
+            matcher = cv::makePtr<cv::FlannBasedMatcher>(cv::makePtr<cv::flann::LshIndexParams>(12, 20, 2));
+        }
+        else if (descriptorType.compare("DES_HOG") == 0)
+        {
+            matcher = cv::FlannBasedMatcher::create();            
+        }
     }
 
     // perform matching task
@@ -30,10 +47,18 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
-
-        // ...
+        vector<vector<cv::DMatch>> knn_matches;
+        matcher->knnMatch(descSource, descRef, knn_matches, 2);
+        // implement the descriptor distance ratio test with t=0.8
+        const float threshold = 0.8;
+        for (auto knn_match: knn_matches) {
+            if (knn_match.size() == 2 && knn_match[0].distance < knn_match[1].distance * threshold) {
+                matches.push_back(knn_match[0]);
+            }
+        }
     }
 }
+
 
 // Use one of several types of state-of-art descriptors to uniquely identify keypoints
 void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors, string descriptorType)
