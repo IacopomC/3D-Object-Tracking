@@ -49,23 +49,23 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
 
         extractor = cv::BRISK::create(threshold, octaves, patternScale);
     }
-    else if (detectorType.compare("BRIEF") == 0)
+    else if (descriptorType.compare("BRIEF") == 0)
     {
         //...
     }
-    else if (detectorType.compare("ORB") == 0)
+    else if (descriptorType.compare("ORB") == 0)
     {
         //...
     }
-    else if (detectorType.compare("AKAZE") == 0)
+    else if (descriptorType.compare("AKAZE") == 0)
     {
         //...
     }
-    else if (detectorType.compare("SIFT") == 0)
+    else if (descriptorType.compare("SIFT") == 0)
     {
         //...
     }
-    else if (detectorType.compare("FREAK") == 0)
+    else if (descriptorType.compare("FREAK") == 0)
     {
         //...
     }
@@ -78,7 +78,7 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
 }
 
 // Detect keypoints in image using the traditional Shi-Thomasi detector
-void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img)
 {
     // compute detector parameters based on image size
     int blockSize = 4;       //  size of an average block for computing a derivative covariation matrix over each pixel neighborhood
