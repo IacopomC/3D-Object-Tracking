@@ -91,12 +91,114 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     cout << "Shi-Tomasi detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
+}
+
+
+void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img)
+{
+    // Detector parameters
+    int blockSize = 2; // for every pixel, a blockSize × blockSize neighborhood is considered
+    int apertureSize = 3; // aperture parameter for Sobel operator (must be odd)
+    int minResponse = 100; // minimum value for a corner in the 8bit scaled response matrix
+    double k = 0.04; // Harris parameter (see equation for details)
+
+    // Detect Harris corners and normalize output
+    cv::Mat dst, dst_norm, dst_norm_scaled;
+    dst = cv::Mat::zeros(img.size(), CV_32FC1 );
+    double t = (double)cv::getTickCount();
+    cv::cornerHarris( img, dst, blockSize, apertureSize, k, cv::BORDER_DEFAULT ); 
+    cv::normalize( dst, dst_norm, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat() );
+    cv::convertScaleAbs( dst_norm, dst_norm_scaled );
+
+    // perform non-maximum suppression to locate corners
+    double maxOverlap = 0.0; // max. permissible overlap between two features in %
+    for (int i = 0; i < dst_norm.rows; ++i)
+    {
+        for (int j = 0; j < dst_norm.cols; ++j)
+        {
+            int response = (int)dst_norm.at<float>(i,j);
+            if (response > minResponse)
+            {
+                cv::KeyPoint newKeypoint;
+                newKeypoint.pt = cv::Point2f(j, i);
+                newKeypoint.size = 2 * apertureSize;
+                newKeypoint.response = response;
+
+                // perform a non-maximum suppression (NMS) in a local neighborhood around each maximum
+                bool overlapped = false;
+                for (auto it = keypoints.begin(); it != keypoints.end(); ++it)
+                {
+                    double overlap = cv::KeyPoint::overlap(newKeypoint, *it);
+                    if (overlap > maxOverlap)
+                    {
+                        overlapped = true;
+                        if (newKeypoint.response > (*it).response)
+                        {
+                            *it = newKeypoint;
+                            break;
+                        }
+                    }
+                }
+
+                if (!overlapped)
+                {
+                    keypoints.push_back(newKeypoint);
+                }
+            }
+        }
+    }
+
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "Harris detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+
+}
+
+void detectKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, string detectorType, bool bVis)
+{
+    // select keypoints detector based on type
+    if (detectorType.compare("SHITOMASI") == 0)
+    {
+        detKeypointsShiTomasi(keypoints, img);
+    }
+    else if (detectorType.compare("HARRIS") == 0)
+    {
+        detKeypointsHarris(keypoints, img);
+    }
+    else if (detectorType.compare("BRISK") == 0)
+    {
+        //...
+    }
+    else if (detectorType.compare("FAST") == 0)
+    {
+        //...
+    }
+    else if (detectorType.compare("ORB") == 0)
+    {
+        //...
+    }
+    else if (detectorType.compare("AKAZE") == 0)
+    {
+        //...
+    }
+    else if (detectorType.compare("SIFT") == 0)
+    {
+        //...
+    }
+    else if (detectorType.compare("FREAK") == 0)
+    {
+        //...
+    }
+    else
+    {
+        cout << "Invalid detector type. Choose between HARRIS, SHITOMASI, FAST, BRISK, ORB, AKAZE, SIFT, FREAK" << endl;
+    }
+
     // visualize results
     if (bVis)
     {
         cv::Mat visImage = img.clone();
         cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-        string windowName = "Shi-Tomasi Corner Detector Results";
+        string windowName = detectorType + " Detector Results";
         cv::namedWindow(windowName, 6);
         imshow(windowName, visImage);
         cv::waitKey(0);
