@@ -177,13 +177,50 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 // Associate bounding boxes between current and previous frame using keypoint matches
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
 {
+    cv::KeyPoint previous_keypoint, current_keypoint;
+    vector<int> bbox_prev_frame, bbox_curr_frame;
+    int prev_bbox_size = prevFrame.boundingBoxes.size();
+    int curr_bbox_size = currFrame.boundingBoxes.size();
+    vector<vector<int>> bbox_match;
+    
     for (auto it1 = matches.begin(); it1 != matches.end(); ++it1)
     {
-        // by which bbox these keypoints are enclosed both in the previous and current frame
-        // potential candidates whose ID I store
+        // retrieve keypoint in previous frame
+        previous_keypoint = prevFrame.keypoints[it1->queryIdx];
+        // retrieve keypoint in current frame
+        current_keypoint = currFrame.keypoints[it1->trainIdx];
+
+        // check which bounding boxes enclose the retrieved keypoints
+        for (auto boundingBox: prevFrame.boundingBoxes)
+        {
+            if (boundingBox.roi.contains(previous_keypoint.pt))
+            {
+                bbox_prev_frame.push_back(boundingBox.boxID);
+            }
+        }
+
+        for (auto boundingBox : currFrame.boundingBoxes)
+        {
+            if (boundingBox.roi.contains(current_keypoint.pt))
+            {
+                bbox_curr_frame.push_back(boundingBox.boxID);
+            }
+        }
+
+        for (auto bbox_prev: bbox_prev_frame)
+        {
+            for (auto bbox_curr: bbox_curr_frame)
+            {
+                bbox_match[bbox_prev][bbox_curr]++;
+            }
+        }
     }
-
-    // find all the match candidates which share the same bbox ID in the previous frame and count them
-
-    // aassociate bboxes with highest number of occurences
+    for (auto boundingBox: prevFrame.boundingBoxes)
+    {
+        bbBestMatches[boundingBox.boxID]= distance(bbox_match[boundingBox.boxID].begin(),
+                                                    max_element(bbox_match[boundingBox.boxID].begin(),
+                                                                bbox_match[boundingBox.boxID].end()
+                                                    )
+                                            );
+    }
 }
