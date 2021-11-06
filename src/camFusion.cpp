@@ -203,6 +203,9 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
         // retrieve keypoint in current frame
         current_keypoint = currFrame.keypoints[it1->trainIdx];
 
+        bbox_prev_frame.clear();
+        bbox_curr_frame.clear();
+
         // check which bounding boxes enclose the retrieved keypoints
         for (auto boundingBox: prevFrame.boundingBoxes)
         {
