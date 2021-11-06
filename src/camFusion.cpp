@@ -153,10 +153,40 @@ void show3DObjects(std::vector<BoundingBox> &boundingBoxes, cv::Size worldSize, 
 }
 
 
-// associate a given bounding box with the keypoints it contains
+// Associate a given bounding box with the keypoints it contains
 void clusterKptMatchesWithROI(BoundingBox &boundingBox, std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPoint> &kptsCurr, std::vector<cv::DMatch> &kptMatches)
 {
-    // ...
+    cv::KeyPoint kptPrevFrame, kptCurrFrame;
+    vector<cv::DMatch> bboxMatches;
+    vector<double> distances;
+
+    for (auto it1 = kptMatches.begin(); it1 != kptMatches.end(); ++it1)
+    {
+        // retrieve keypoint in previous frame
+        kptPrevFrame = kptsPrev[it1->trainIdx];
+        // retrieve keypoint in current frame
+        kptCurrFrame = kptsCurr[it1->queryIdx];
+        // Check if keypoint is within region of interest bounding box
+        if (boundingBox.roi.contains(kptCurrFrame.pt))
+        {   
+            // Calculate matches and euclidian distance between keypoint matches    
+            bboxMatches.push_back(*it1);
+            distances.push_back(cv::norm(kptCurrFrame.pt - kptPrevFrame.pt));
+        }
+    }
+
+    // Eliminate outliers by checking if distance is far from mean
+    int distCount = distances.size();
+    double distMean = 1.0 * std::accumulate(distances.begin(), distances.end(), 0LL) / distCount;
+    double distTresh = 1.5 * distMean;
+    for (int i = 0; i < distCount; i++)
+    {
+        if (distances[i] < distTresh)
+        {
+            boundingBox.keypoints.push_back(kptsCurr[bboxMatches[i].trainIdx]);
+            boundingBox.kptMatches.push_back(bboxMatches[i]);
+        }
+    }
 }
 
 
@@ -200,9 +230,9 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
     for (auto it1 = matches.begin(); it1 != matches.end(); ++it1)
     {
         // retrieve keypoint in previous frame
-        previous_keypoint = prevFrame.keypoints[it1->queryIdx];
+        previous_keypoint = prevFrame.keypoints[it1->trainIdx];
         // retrieve keypoint in current frame
-        current_keypoint = currFrame.keypoints[it1->trainIdx];
+        current_keypoint = currFrame.keypoints[it1->queryIdx];
 
         bbox_prev_frame.clear();
         bbox_curr_frame.clear();
