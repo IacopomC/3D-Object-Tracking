@@ -236,13 +236,16 @@ int main(int argc, const char *argv[])
 
                     cout << "#9 : COMPUTE TIME-TO-COLLISION LIDAR done" << endl;
 
-                    //// STUDENT ASSIGNMENT
-                    //// TASK FP.3 -> assign enclosed keypoint matches to bounding box (implement -> clusterKptMatchesWithROI)
-                    //// TASK FP.4 -> compute time-to-collision based on camera (implement -> computeTTCCamera)
                     double ttcCamera;
+                    // Assign enclosed keypoint matches to bounding box
                     clusterKptMatchesWithROI(*currBB, (dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->kptMatches);                    
+                    
+                    cout << "#10 : CLUSTER KEYPOINT MATCHES WITH ROI done" << endl;
+                    
+                    // Compute time-to-collision based on camera
                     computeTTCCamera((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, currBB->kptMatches, sensorFrameRate, ttcCamera);
-                    //// EOF STUDENT ASSIGNMENT
+
+                    cout << "#11 : COMPUTE TIME-TO-COLLISION CAMERA done" << endl;
 
                     bVis = true;
                     if (bVis)
