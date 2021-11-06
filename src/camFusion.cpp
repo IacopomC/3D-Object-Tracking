@@ -163,9 +163,10 @@ void clusterKptMatchesWithROI(BoundingBox &boundingBox, std::vector<cv::KeyPoint
     for (auto it1 = kptMatches.begin(); it1 != kptMatches.end(); ++it1)
     {
         // retrieve keypoint in previous frame
-        kptPrevFrame = kptsPrev[it1->trainIdx];
+        kptPrevFrame = kptsPrev[it1->queryIdx];
         // retrieve keypoint in current frame
-        kptCurrFrame = kptsCurr[it1->queryIdx];
+        kptCurrFrame = kptsCurr[it1->trainIdx];
+
         // Check if keypoint is within region of interest bounding box
         if (boundingBox.roi.contains(kptCurrFrame.pt))
         {   
@@ -230,9 +231,9 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
     for (auto it1 = matches.begin(); it1 != matches.end(); ++it1)
     {
         // retrieve keypoint in previous frame
-        previous_keypoint = prevFrame.keypoints[it1->trainIdx];
+        previous_keypoint = prevFrame.keypoints[it1->queryIdx];
         // retrieve keypoint in current frame
-        current_keypoint = currFrame.keypoints[it1->queryIdx];
+        current_keypoint = currFrame.keypoints[it1->trainIdx];
 
         bbox_prev_frame.clear();
         bbox_curr_frame.clear();
