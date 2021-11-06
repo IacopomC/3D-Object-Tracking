@@ -177,11 +177,12 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 // Associate bounding boxes between current and previous frame using keypoint matches
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
 {
+
     cv::KeyPoint previous_keypoint, current_keypoint;
     vector<int> bbox_prev_frame, bbox_curr_frame;
     int prev_bbox_size = prevFrame.boundingBoxes.size();
     int curr_bbox_size = currFrame.boundingBoxes.size();
-    vector<vector<int>> bbox_match;
+    vector<vector<int>> bbox_match(prev_bbox_size, vector<int>(curr_bbox_size));
     
     for (auto it1 = matches.begin(); it1 != matches.end(); ++it1)
     {
@@ -215,6 +216,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
             }
         }
     }
+    
     for (auto boundingBox: prevFrame.boundingBoxes)
     {
         bbBestMatches[boundingBox.boxID]= distance(bbox_match[boundingBox.boxID].begin(),
@@ -223,4 +225,5 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
                                                     )
                                             );
     }
+
 }
