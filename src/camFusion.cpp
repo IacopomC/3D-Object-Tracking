@@ -183,7 +183,8 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
     }
 
     // compute TTC from both measurements
-    TTC = minXCurr * frameRate / (minXPrev-minXCurr);
+    double dT = 1.0 / frameRate;
+    TTC = minXCurr  * dT / (minXPrev-minXCurr);
 }
 
 // Associate bounding boxes between current and previous frame using keypoint matches
