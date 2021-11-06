@@ -243,7 +243,7 @@ int main(int argc, const char *argv[])
                     cout << "#10 : CLUSTER KEYPOINT MATCHES WITH ROI done" << endl;
                     
                     // Compute time-to-collision based on camera
-                    computeTTCCamera((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, currBB->kptMatches, sensorFrameRate);
+                    computeTTCCamera((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, currBB->kptMatches, sensorFrameRate, ttcCamera);
 
                     cout << "#11 : COMPUTE TIME-TO-COLLISION CAMERA done" << endl;
 
