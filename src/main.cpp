@@ -212,6 +212,7 @@ int main(int argc, const char *argv[])
                 BoundingBox *prevBB, *currBB;
                 for (auto it2 = (dataBuffer.end() - 1)->boundingBoxes.begin(); it2 != (dataBuffer.end() - 1)->boundingBoxes.end(); ++it2)
                 {
+
                     if (it1->second == it2->boxID) // check whether current match partner corresponds to this BB
                     {
                         currBB = &(*it2);
@@ -255,7 +256,7 @@ int main(int argc, const char *argv[])
                         putText(visImg, str, cv::Point2f(80, 50), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0,0,255));
 
                         string windowName = "Final Results : TTC";
-                        cv::namedWindow(windowName, 4);
+                        cv::namedWindow(windowName);
                         cv::imshow(windowName, visImg);
                         cout << "Press key to continue to next frame" << endl;
                         cv::waitKey(0);
